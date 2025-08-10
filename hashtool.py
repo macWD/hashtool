@@ -63,7 +63,7 @@ class git_commands():
 
 def make_h(filename='git_hash.h'):
     git_output = git_commands(word_size=16)
-    status = git_output.status()
+    status = git_output.status(False)
     changes = git_output.are_changes()
     out_string = 'ffff'
 
