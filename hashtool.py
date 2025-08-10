@@ -65,43 +65,57 @@ def make_h(filename='git_hash.h'):
     git_output = git_commands(word_size=16)
     status = git_output.status(False)
     changes = git_output.are_changes()
-    out_string = 'ffff'
+    STALE_NUM = 'ffff'
+    STALE_STR = 'stale-'
 
     if changes:
         print('>>> WARNING: you have uncommited changes <<<')
-        print('Using 0x'+out_string)
+        print('Using 0x' + STALE_NUM + ' for numeric defines.')
+        print('Prefixing string defines with \"' + STALE_STR + '\".')
 
-    if not changes:
-        out_string = git_output.full_hash()
-    # a text define
-    full_hash_string = '#define GIT_FULL_HASH_STR "' + out_string + '"'
-    # a numeric define
-    full_hash_number = '#define GIT_FULL_HASH_NUM 0x' + out_string
+    # formulate full hash #defines
+    full_hash_string = '#define GIT_FULL_HASH_STR \"' 
+    full_hash_number = '#define GIT_FULL_HASH_NUM 0x'
+    if changes:
+        full_hash_string += STALE_STR
+        full_hash_number += STALE_NUM
+    else:
+        full_hash_number += git_output.full_hash()
+    # finally         
+    full_hash_string += git_output.full_hash() + '\"'
+        
+    # formulate unique hash #defines
+    short_hash_string = '#define GIT_UNIQUE_HASH_STR \"'
+    short_hash_number = '#define GIT_UNIQUE_HASH_NUM 0x'
+    if changes:
+        short_hash_string += STALE_STR
+        short_hash_number += STALE_NUM
+    else:
+        short_hash_number += git_output.unique_hash()
+    # finally         
+    short_hash_string += git_output.unique_hash() + '\"'
 
-    if not changes:
-        out_string = git_output.unique_hash()
-    # a text define
-    short_hash_string = '#define GIT_UNIQUE_HASH_STR "' + out_string + '"'
-    # a numeric define
-    short_hash_number = '#define GIT_UNIQUE_HASH_NUM 0x' + out_string
+    # formulate 32-bit hash #defines
+    fixed_32_bit_hash_string = '#define GIT_HASH_32_BIT_STR \"'
+    fixed_32_bit_hash_number = '#define GIT_HASH_32_BIT_NUM 0x'
+    if changes:
+        fixed_32_bit_hash_string += STALE_STR
+        fixed_32_bit_hash_number += STALE_NUM
+    else:
+        fixed_32_bit_hash_number += git_output.double_hash()
+    # finally         
+    fixed_32_bit_hash_string += git_output.double_hash() + '\"'
 
-    # truncate full result down to fixed lengths, overriding git
-    # it's not guaranteed unique, but probably the most useful
-    # 32-bit
-    if not changes:
-        out_string = git_output.double_hash()
-    # a text define
-    fixed_32_bit_hash_string = '#define GIT_HASH_32_BIT_STR "' + out_string + '"'
-    # a numeric define
-    fixed_32_bit_hash_number = '#define GIT_HASH_32_BIT_NUM 0x' + out_string
-
-    # 16-bit
-    if not changes:
-        out_string = git_output.word_hash()
-    # a text define
-    fixed_16_bit_hash_string = '#define GIT_HASH_16_BIT_STR "' + out_string + '"'
-    # a numeric define
-    fixed_16_bit_hash_number = '#define GIT_HASH_16_BIT_NUM 0x' + out_string
+    # formulate 16-bit hash #defines
+    fixed_16_bit_hash_string = '#define GIT_HASH_16_BIT_STR \"'
+    fixed_16_bit_hash_number = '#define GIT_HASH_16_BIT_NUM 0x'
+    if changes:
+        fixed_16_bit_hash_string += STALE_STR
+        fixed_16_bit_hash_number += STALE_NUM
+    else:
+        fixed_16_bit_hash_number += git_output.word_hash()
+    # finally         
+    fixed_16_bit_hash_string += git_output.word_hash() + '\"'
 
     # create hash.h file
     with open(filename, 'w') as h_file:
