@@ -51,6 +51,11 @@ class git_commands():
             print(ret_val)
         return ret_val
 
+    def normal_hash(self, verbose=False):
+        # git the full hash
+        full = self.full_hash()
+        return full[0:6]  # 24 bits = 6 nybbles
+
     def word_hash(self, verbose=False):
         # git the full hash
         full = self.full_hash()
@@ -117,6 +122,17 @@ def make_h(filename='git_hash.h'):
     # finally         
     fixed_16_bit_hash_string += git_output.word_hash() + '\"'
 
+    # formulate good-ol' 24-bit hash #defines
+    fixed_24_bit_hash_string = '#define GIT_HASH_24_BIT_STR \"'
+    fixed_24_bit_hash_number = '#define GIT_HASH_24_BIT_NUM 0x'
+    if changes:
+        fixed_24_bit_hash_string += STALE_STR
+        fixed_24_bit_hash_number += STALE_NUM
+    else:
+        fixed_24_bit_hash_number += git_output.normal_hash()
+    # finally         
+    fixed_24_bit_hash_string += git_output.normal_hash() + '\"'
+
     # create hash.h file
     with open(filename, 'w') as h_file:
         h_file.write('/*\n')
@@ -137,6 +153,8 @@ def make_h(filename='git_hash.h'):
         h_file.write(fixed_32_bit_hash_number+'\n\n')
         h_file.write(fixed_16_bit_hash_string+'\n')
         h_file.write(fixed_16_bit_hash_number+'\n\n')
+        h_file.write(fixed_24_bit_hash_string+'  // traditional style\n')
+        h_file.write(fixed_24_bit_hash_number+'  //traditional style\n\n')
 
 # __main__ calls with the default arguments
 if __name__ == "__main__":
