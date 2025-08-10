@@ -36,18 +36,20 @@ class git_commands():
     def full_hash(self, verbose=False):
         # git the full hash
         command  = 'git rev-parse HEAD'
-        ret_val = subprocess.run(command, shell=True, capture_output=True, text=True)
+        output = subprocess.run(command, shell=True, capture_output=True, text=True)
+        ret_val = output.stdout[:-1]    # strip EOL
         if verbose:
-            print(ret_val.stdout[:-1])
-        return ret_val.stdout[:-1]  # strip EOL
+            print(ret_val)
+        return ret_val
 
     def unique_hash(self, verbose=False):
         # git the shortest unique hash >= 8 bits
         command  = 'git rev-parse --short=2 HEAD'
-        ret_val = subprocess.run(command, shell=True, capture_output=True, text=True)
+        output = subprocess.run(command, shell=True, capture_output=True, text=True)
+        ret_val = output.stdout[:-1]    # strip EOL
         if verbose:
-            print(ret_val.stdout[:-1])
-        return ret_val.stdout[:-1]
+            print(ret_val)
+        return ret_val
 
     def word_hash(self, verbose=False):
         # git the full hash
